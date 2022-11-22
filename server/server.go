@@ -71,6 +71,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	err = initDb(db)
+	if err != nil {
+		panic(err)
+	}
 	defer db.Close()
 	s := Server{db: db}
 	mux := http.NewServeMux()
@@ -79,6 +83,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func initDb(db *sql.DB) error {
+	sqlStmt := `
+	create table if not exists cotacao (id text not null primary key, bid real, create_date datetime);
+	`
+	_, err := db.Exec(sqlStmt)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlStmt)
+		return err
+	}
+	return nil
 }
 
 func getCotacao() (*Usdbrl, error) {
